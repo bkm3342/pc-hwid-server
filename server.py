@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 
 # 🔥 APNA DISCORD WEBHOOK YAHAN DAAL
-WEBHOOK_URL = "PUT_YOUR_NEW_WEBHOOK_HERE"
+WEBHOOK_URL = "https://discord.com/api/webhooks/1486628249042948177/Sd7goOSOTneyDNHerFR5_ZPOHfCbk6rtcz0ei3Hgcd-PxzNCskU-aHFk13AY20GgiOzm"
 
 
 @app.route("/")
